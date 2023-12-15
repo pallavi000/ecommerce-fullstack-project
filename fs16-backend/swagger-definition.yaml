@@ -1,0 +1,2480 @@
+openapi: 3.0.0
+info:
+  title: E-Commerce API
+  version: 1.0.0
+tags:
+  - name: Address
+    description: Operations related to addresses
+  - name: Authentication
+    description: Operations related to auth
+  - name: Banner
+    description: Operations related to banners
+  - name: Cart
+    description: Operations related to carts
+  - name: Category
+    description: Operations related to categories
+  - name: Order
+    description: Operations related to orders
+  - name: Product
+    description: Operations related to products
+  - name: Size
+    description: Operations related to sizes
+  - name: Permission
+    description: Operations related to permissions
+  - name: User
+    description: Operations related to users
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Address:
+      type: object
+      properties:
+        _id:
+          type: string
+        fullname:
+          type: string
+        country:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        zipCode:
+          type: string
+        phone:
+          type: string
+        isDefault:
+          type: boolean
+        user:
+          $ref: "#/components/schemas/User"
+      example:
+        _id: "1"
+        fullname: "John Doe"
+        country: "Country"
+        city: "Cityville"
+        street: "123 Main St"
+        zipCode: "12345"
+        phone: "123-456-7890"
+        isDefault: false
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+      required:
+        - _id
+        - fullname
+        - country
+        - city
+        - street
+        - zipCode
+        - phone
+        - user
+    Banner:
+      type: object
+      properties:
+        _id:
+          type: string
+        image:
+          type: string
+        position:
+          type: string
+        page:
+          type: string
+      required:
+        - _id
+        - image
+        - position
+        - page
+      example:
+        _id: "1"
+        image: "https://example.com/banner1.jpg"
+        position: "top"
+        page: "home"
+    Cart:
+      type: object
+      properties:
+        _id:
+          type: string
+        product:
+          $ref: "#/components/schemas/Product"
+        user:
+          $ref: "#/components/schemas/User"
+        quantity:
+          type: number
+        total:
+          type: number
+      required:
+        - _id
+        - product
+        - user
+        - quantity
+        - total
+      example:
+        _id: "1"
+        product:
+          _id: "product_id"
+          name: "Product Name"
+          # ... other properties of the Product schema
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+        quantity: 2
+        total: 50.0
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+      required:
+        - _id
+        - name
+        - image
+      example:
+        _id: "1"
+        name: "Category Name"
+        image: "https://example.com/category_image.jpg"
+    Order:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        payment:
+          type: object
+          properties:
+            method:
+              type: string
+              enum:
+                - "credit_card"
+                - "paypal"
+                # Add other payment methods as needed
+            status:
+              type: string
+              enum:
+                - "pending"
+                - "completed"
+                - "failed"
+                # Add other payment statuses as needed
+        shipping:
+          $ref: "#/components/schemas/OrderAddress"
+        billing:
+          $ref: "#/components/schemas/OrderAddress"
+        total:
+          type: number
+      required:
+        - _id
+        - user
+        - products
+        - payment
+        - shipping
+        - billing
+        - total
+      example:
+        _id: "1"
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+        products:
+          - _id: "product_id_1"
+            name: "Product Name 1"
+            # ... other properties of the Product schema
+          - _id: "product_id_2"
+            name: "Product Name 2"
+            # ... other properties of the Product schema
+        payment:
+          method: "credit_card"
+          status: "completed"
+        shipping:
+          _id: "order_address_id"
+          # ... other properties of the OrderAddress schema
+        billing:
+          _id: "order_address_id"
+          # ... other properties of the OrderAddress schema
+        total: 100.0
+    OrderAddress:
+      type: object
+      properties:
+        _id:
+          type: string
+        address:
+          type: object
+          properties:
+            fullname:
+              type: string
+            country:
+              type: string
+            city:
+              type: string
+            street:
+              type: string
+            phone:
+              type: string
+            zipCode:
+              type: string
+          required:
+            - fullname
+            - country
+            - city
+            - street
+            - phone
+            - zipCode
+        method:
+          type: string
+        cost:
+          type: string
+        type:
+          type: string
+          enum:
+            - "shipping"
+            - "billing"
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - _id
+        - address
+        - type
+        - user
+      example:
+        _id: "1"
+        address:
+          fullname: "John Doe"
+          country: "Country"
+          city: "Cityville"
+          street: "123 Main St"
+          phone: "123-456-7890"
+          zipCode: "12345"
+        method: "standard"
+        cost: "10.0"
+        type: "shipping"
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+    OrderProduct:
+      type: object
+      properties:
+        _id:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        order:
+          $ref: "#/components/schemas/Order"
+        product:
+          $ref: "#/components/schemas/Product"
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        image:
+          type: string
+        discount:
+          type: number
+        quantity:
+          type: number
+      required:
+        - _id
+        - user
+        - order
+        - product
+        - name
+        - price
+        - description
+        - quantity
+      example:
+        _id: "1"
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+        order:
+          _id: "order_id"
+          # ... other properties of the Order schema
+        product:
+          _id: "product_id"
+          name: "Product Name"
+          # ... other properties of the Product schema
+        name: "Ordered Product Name"
+        price: 29.99
+        description: "Product Description"
+        image: "https://example.com/product_image.jpg"
+        discount: 5.0
+        quantity: 2
+    Permission:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - _id
+        - name
+        - user
+      example:
+        _id: "1"
+        name: "Permission Name"
+        description: "Permission Description"
+        user:
+          _id: "user_id"
+          username: "username"
+          # ... other properties of the User schema
+    Product:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        image:
+          type: string
+        category:
+          $ref: "#/components/schemas/Category"
+        stock:
+          type: number
+        size:
+          $ref: "#/components/schemas/Size"
+      required:
+        - _id
+        - name
+        - price
+        - description
+        - image
+        - category
+        - stock
+      example:
+        _id: "1"
+        name: "Product Name"
+        price: 29.99
+        description: "Product Description"
+        image: "https://example.com/product_image.jpg"
+        category:
+          _id: "category_id"
+          name: "Category Name"
+          # ... other properties of the Category schema
+        stock: 100
+        size:
+          _id: "size_id"
+          name: "Size Name"
+          # ... other properties of the Size schema
+    Size:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+      required:
+        - _id
+        - name
+      example:
+        _id: "1"
+        name: "Size Name"
+    Token:
+      type: object
+      properties:
+        _id:
+          type: string
+        refreshToken:
+          type: string
+      required:
+        - _id
+        - refreshToken
+      example:
+        _id: "1"
+        refreshToken: "sample_refresh_token"
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - "ADMIN"
+            - "USER"
+            # Add other roles as needed
+        avatar:
+          type: string
+        permission:
+          type: array
+          items:
+            $ref: "#/components/schemas/Permission"
+        phoneNumber:
+          type: string
+      required:
+        - _id
+        - firstName
+        - lastName
+        - email
+        - password
+        - role
+      example:
+        _id: "1"
+        firstName: "John"
+        lastName: "Doe"
+        email: "john.doe@example.com"
+        password: "hashed_password"
+        role: "USER"
+        avatar: "https://example.com/avatar.jpg"
+        permission:
+          - _id: "permission_id_1"
+            name: "Permission Name 1"
+            # ... other properties of the Permission schema
+          - _id: "permission_id_2"
+            name: "Permission Name 2"
+            # ... other properties of the Permission schema
+        phoneNumber: "123-456-7890"
+
+paths:
+  /addresses:
+    get:
+      summary: Get all addresses (protected)
+      security:
+        - bearerAuth: []
+      tags:
+        - Address
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Address"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new address (protected)
+      security:
+        - bearerAuth: []
+      tags:
+        - Address
+      requestBody:
+        description: Address details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Address"
+      responses:
+        "201":
+          description: Address created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Address"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Invalid request body"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /addresses/{addressId}:
+    put:
+      summary: Update an address by ID (protected)
+      security:
+        - bearerAuth: []
+      tags:
+        - Address
+      parameters:
+        - in: path
+          name: addressId
+          required: true
+          schema:
+            type: string
+          description: The ID of the address to update
+      requestBody:
+        description: Updated address details
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Address"
+      responses:
+        "200":
+          description: Address updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Address"
+        "404":
+          description: Address not found
+          content:
+            application/json:
+              example:
+                message: "Address not found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete address (protected)
+      security:
+        - bearerAuth: []
+      tags:
+        - Address
+      parameters:
+        - in: path
+          name: addressId
+          required: true
+          description: ID of the address to delete
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Address successfully deleted
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Address not found
+          content:
+            application/json:
+              example:
+                message: "Address not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /addresses/make-default/{addressId}:
+    put:
+      summary: Make address default (protected)
+      security:
+        - bearerAuth: []
+      tags:
+        - Address
+      parameters:
+        - in: path
+          name: addressId
+          required: true
+          description: ID of the address to make default
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "1"
+                fullname: "John Doe"
+                country: "Country"
+                city: "Cityville"
+                street: "123 Main St"
+                zipCode: "12345"
+                phone: "123-456-7890"
+                isDefault: true
+                user:
+                  _id: "user_id"
+                  username: "username"
+                  # ... other properties of the User schema
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Address not found
+          content:
+            application/json:
+              example:
+                message: "Address not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: User's email address
+                password:
+                  type: string
+                  description: User's password
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              example:
+                accessToken: "your_access_token"
+                refreshToken: "your_refresh_token"
+        "400":
+          description: Incorrect password
+          content:
+            application/json:
+              example:
+                message: "Incorrect password"
+        "404":
+          description: Invalid email
+          content:
+            application/json:
+              example:
+                message: "Invalid email"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+                firstName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                lastName:
+                  type: string
+                  minLength: 2
+                  maxLength: 50
+                role:
+                  type: string
+                  enum:
+                    - "ADMIN"
+                    - "USER"
+                avatar:
+                  type: string
+                phoneNumber:
+                  type: string
+                permission:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+                - role
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              example:
+                user:
+                  _id: "user_id"
+                  email: "user@example.com"
+                  firstName: "John"
+                  lastName: "Doe"
+                  role: "USER"
+                  avatar: "user_avatar_url"
+                  phoneNumber: "1234567890"
+                  permission:
+                    - _id: "permission_id_1"
+                      name: "permission_name_1"
+                    - _id: "permission_id_2"
+                      name: "permission_name_2"
+                accessToken: "your_access_token"
+                refreshToken: "your_refresh_token"
+        "400":
+          description: Username already exists
+          content:
+            application/json:
+              example:
+                message: "Username already exists"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /auth/profile:
+    get:
+      summary: Get user profile
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              example:
+                _id: "user_id"
+                email: "user@example.com"
+                firstName: "John"
+                lastName: "Doe"
+                role: "USER"
+                avatar: "user_avatar_url"
+                phoneNumber: "1234567890"
+                permission:
+                  - _id: "permission_id_1"
+                    name: "permission_name_1"
+                  - _id: "permission_id_2"
+                    name: "permission_name_2"
+        "404":
+          description: User profile not found
+          content:
+            application/json:
+              example:
+                message: "User profile not found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /auth/change-password:
+    put:
+      summary: Change user password
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                confirmPassword:
+                  type: string
+              required:
+                - currentPassword
+                - newPassword
+                - confirmPassword
+      responses:
+        "200":
+          description: Password changed successfully
+          content:
+            application/json:
+              example:
+                message: "ok"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Password did not match."
+        "404":
+          description: User not found
+          content:
+            application/json:
+              example:
+                message: "User not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /auth/update-profile:
+    put:
+      summary: Update user profile
+      tags:
+        - Authentication
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                avatar:
+                  type: string
+                phoneNumber:
+                  type: string
+                permission:
+                  type: array
+                  items:
+                    type: string
+              required:
+                - firstName
+                - lastName
+      responses:
+        "200":
+          description: Profile updated successfully
+          content:
+            application/json:
+              example:
+                _id: "user_id"
+                firstName: "UpdatedFirstName"
+                lastName: "UpdatedLastName"
+                avatar: "updated_avatar_url"
+                phoneNumber: "UpdatedPhoneNumber"
+                permission:
+                  - _id: "permission_id_1"
+                    name: "permission_name_1"
+                  - _id: "permission_id_2"
+                    name: "permission_name_2"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              example:
+                message: "User not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /auth/login/google:
+    post:
+      summary: Authenticate user using Google login
+      tags:
+        - Authentication
+      requestBody:
+        description: Google ID token included in the request body
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_token:
+                  type: string
+                  description: Google ID token
+              required:
+                - id_token
+      responses:
+        "200":
+          description: Google login successful
+          content:
+            application/json:
+              example:
+                accessToken: "generated_access_token"
+                refreshToken: "generated_refresh_token"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              example:
+                message: "Authentication failed."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /banners:
+    get:
+      summary: Get all banners
+      security:
+        - bearerAuth: []
+      tags:
+        - Banner
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Banner"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new banner
+      security:
+        - bearerAuth: []
+      tags:
+        - Banner
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                position:
+                  type: string
+                page:
+                  type: string
+              required:
+                - image
+                - position
+                - page
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Banner"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /banners/{bannerId}:
+    put:
+      summary: Update a banner by ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Banner
+      parameters:
+        - in: path
+          name: bannerId
+          schema:
+            type: string
+          required: true
+          description: Banner ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                position:
+                  type: string
+                page:
+                  type: string
+              required:
+                - image
+                - position
+                - page
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Banner"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete a banner by ID
+      security:
+        - bearerAuth: []
+      tags:
+        - Banner
+      parameters:
+        - in: path
+          name: bannerId
+          schema:
+            type: string
+          required: true
+          description: Banner ID
+      responses:
+        "204":
+          description: No Content
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /carts:
+    get:
+      summary: Get all cart items
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cart"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "CartItem is empty"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Add a new item to the cart
+      tags:
+        - Cart
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product:
+                  type: string
+                  description: Product ID is required
+                user:
+                  type: string
+                  description: User ID is required
+                quantity:
+                  type: number
+                  description: Quantity is required
+                total:
+                  type: number
+                  minimum: 0
+                  description: Total is required
+              required:
+                - product
+                - user
+                - quantity
+                - total
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Invalid action"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Product not found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /carts/{cartId}:
+    put:
+      summary: Update cart item quantity
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema:
+            type: string
+          example: "cartId"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: ["increase", "decrease"]
+                  description: Action is required
+              required:
+                - action
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cart"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Invalid action"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Invalid cart id"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Remove item from the cart
+      tags:
+        - Cart
+      parameters:
+        - in: path
+          name: cartId
+          required: true
+          schema:
+            type: string
+          example: "cartId"
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Successful deletion
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /categories:
+    get:
+      summary: Get all categories
+      tags:
+        - Category
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Error in fetching categories"
+    post:
+      summary: Create a new category
+      tags:
+        - Category
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Category name
+                image:
+                  type: string
+                  description: Category Image link
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /categories/{categoryId}:
+    get:
+      summary: Get details of a category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+          example: "categoryId"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Category not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    put:
+      summary: Update a category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+          example: "categoryId"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Category name
+                image:
+                  type: string
+                  description: Category Image link
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Category not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete a category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+          example: "categoryId"
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Successful deletion
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Category not found."
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /categories/{categoryId}/products:
+    get:
+      summary: Get products by category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          required: true
+          schema:
+            type: string
+          example: "categoryId"
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          example: 12
+        - in: query
+          name: pageNo
+          schema:
+            type: integer
+          example: 1
+        - in: query
+          name: sorting
+          schema:
+            type: string
+          example: "-_id"
+        - in: query
+          name: minPrice
+          schema:
+            type: integer
+          example: 0
+        - in: query
+          name: maxPrice
+          schema:
+            type: integer
+          example: 9999999
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /orders:
+    get:
+      summary: Get all orders
+      tags:
+        - Order
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new order
+      tags:
+        - Order
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cart:
+                  type: array
+                  items:
+                    type: string
+                payment:
+                  type: object
+                  properties:
+                    method:
+                      type: string
+                      enum:
+                        - CREDIT_CARD
+                        - PAYPAL
+                        - OTHER
+                    status:
+                      type: string
+                      enum:
+                        - PENDING
+                        - PAID
+                        - FAILED
+                        - CANCELED
+                shipping:
+                  type: string
+                billing:
+                  type: string
+                total:
+                  type: number
+                  minimum: 0
+              required:
+                - cart
+                - payment
+                - shipping
+                - billing
+                - total
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /orders/user:
+    get:
+      summary: Get orders by user
+      tags:
+        - Order
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /orders/{orderId}:
+    get:
+      summary: Get details of an order
+      tags:
+        - Order
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: string
+          example: "orderId"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /products:
+    get:
+      summary: Get all products
+      tags:
+        - Product
+      parameters:
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          example: 12
+        - in: query
+          name: pageNo
+          schema:
+            type: integer
+          example: 1
+        - in: query
+          name: sorting
+          schema:
+            type: string
+          example: "-_id"
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+          example: "categoryId"
+        - in: query
+          name: minPrice
+          schema:
+            type: integer
+          example: 0
+        - in: query
+          name: maxPrice
+          schema:
+            type: integer
+          example: 9999999
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new product
+      tags:
+        - Product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                  minimum: 0
+                description:
+                  type: string
+                category:
+                  type: string
+                stock:
+                  type: number
+                size:
+                  type: string
+                image:
+                  type: string
+              required:
+                - name
+                - price
+                - description
+                - category
+                - stock
+                - size
+                - image
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /products/search:
+    get:
+      summary: Search products
+      tags:
+        - Product
+      parameters:
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+          example: 12
+        - in: query
+          name: pageNo
+          schema:
+            type: integer
+          example: 1
+        - in: query
+          name: sorting
+          schema:
+            type: string
+          example: "-_id"
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+          example: "categoryId"
+        - in: query
+          name: minPrice
+          schema:
+            type: integer
+          example: 0
+        - in: query
+          name: maxPrice
+          schema:
+            type: integer
+          example: 9999999
+        - in: query
+          name: title
+          schema:
+            type: string
+          example: "product title"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /products/{productId}:
+    get:
+      summary: Get details of a product
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          example: "productId"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    put:
+      summary: Update a product
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          example: "productId"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                price:
+                  type: number
+                  minimum: 0
+                description:
+                  type: string
+                category:
+                  type: string
+                stock:
+                  type: number
+                size:
+                  type: string
+                image:
+                  type: string
+              required:
+                - name
+                - price
+                - description
+                - category
+                - stock
+                - size
+                - image
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete a product
+      tags:
+        - Product
+      parameters:
+        - in: path
+          name: productId
+          required: true
+          schema:
+            type: string
+          example: "productId"
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Successful deletion
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /sizes:
+    get:
+      summary: Get all sizes
+      tags:
+        - Size
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Size"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new size
+      tags:
+        - Size
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Size"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /sizes/{sizeId}:
+    get:
+      summary: Get details of a size
+      tags:
+        - Size
+      parameters:
+        - in: path
+          name: sizeId
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Size"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    put:
+      summary: Update a size
+      tags:
+        - Size
+      parameters:
+        - in: path
+          name: sizeId
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Size"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete a size
+      tags:
+        - Size
+      parameters:
+        - in: path
+          name: sizeId
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Successful deletion
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                message: "Not Found"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /users/permissions:
+    get:
+      summary: Get all permissions
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Permission"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Add a new permission
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Permission"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /users/permissions/{permissionId}:
+    put:
+      summary: Update a permission
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: permissionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Permission"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    delete:
+      summary: Delete a permission
+      tags:
+        - Permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: permissionId
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Successful deletion
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+
+  /users:
+    get:
+      summary: Get all users
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    post:
+      summary: Create a new user
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: "newuser@example.com"
+              password: "newpassword"
+              firstName: "New"
+              lastName: "User"
+              role: "USER"
+              avatar: "newavatar.jpg"
+              phoneNumber: "987654321"
+              permission:
+                - "permission_id"
+      responses:
+        "201":
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              example: "Username already exists"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+  /users/{userId}:
+    get:
+      summary: Get details of a user
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          example: "user1"
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                error: User not found.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Internal server error"
+    put:
+      summary: Update user information
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          example: "user1"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              email: "updateduser@example.com"
+              firstName: "Updated"
+              lastName: "User"
+              role: "USER"
+              avatar: "updatedavatar.jpg"
+              phoneNumber: "987654321"
+              permission:
+                - "permission_id"
+      responses:
+        "200":
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                error: User not found.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                error: Internal server error
+    delete:
+      summary: Delete a user
+      tags:
+        - User
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+          example: "user1"
+      responses:
+        "204":
+          description: Successful deletion
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                message: "Unauthorized"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              example:
+                error: User not found.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                error: Internal server error
